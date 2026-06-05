@@ -1,4 +1,9 @@
 class CountDB extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" }); // ★ Shadow DOM を作成
+  }
+
   async connectedCallback() {
     const db = this.getAttribute("db");
     const domain = this.getAttribute("domain");
@@ -7,7 +12,6 @@ class CountDB extends HTMLElement {
     const left = this.hasAttribute("left");
     const right = this.hasAttribute("right");
 
-    // ★ width / height のみ使用
     const width = this.getAttribute("width");
     const height = this.getAttribute("height");
 
@@ -20,11 +24,12 @@ class CountDB extends HTMLElement {
     const text = await res.text();
     const count = text.trim();
 
+    // Shadow DOM 内の wrapper
     const wrapper = document.createElement("span");
     wrapper.style.display = "inline-flex";
     wrapper.style.alignItems = "center";
 
-    // 共通：画像サイズ適用
+    // 共通サイズ適用
     const applySize = (img) => {
       if (width) img.style.width = `${width}px`;
       if (height) img.style.height = `${height}px`;
@@ -54,7 +59,8 @@ class CountDB extends HTMLElement {
       wrapper.appendChild(r);
     }
 
-    this.appendChild(wrapper);
+    // Shadow DOM に追加
+    this.shadowRoot.appendChild(wrapper);
   }
 }
 
