@@ -1,3 +1,12 @@
+/**
+ * @title Access Counter Custom components
+ * @author 奏音
+ * @license Apache
+ * @version 1.0.0
+ * @description Access Counter Custom components
+ * @created 2026-06-05
+ */
+
 class CountDB extends HTMLElement {
   constructor() {
     super();
