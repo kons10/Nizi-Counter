@@ -1,18 +1,23 @@
 /*!
- * Access Counter Custom components
+ * Access Counter Custom components v1.1
  * (c) 2026 zyn.f5.si
  * Licensed under MIT
  * github.com/kons10/Nizi-Counter
  */
 
-
 class CountDB extends HTMLElement {
+  static countCache = new Map(); // key: `${db}|${domain}` → value: Promise<string>
+
   constructor() {
     super();
-    this.attachShadow({ mode: "open" }); // ★ Shadow DOM を作成
+    this.attachShadow({ mode: "open" });
   }
 
-  async connectedCallback() {
+  connectedCallback() {
+    this.render();
+  }
+
+  async render() {
     const db = this.getAttribute("db");
     const domain = this.getAttribute("domain");
     const imgPath = this.getAttribute("img") || "/count_img/";
@@ -20,55 +25,104 @@ class CountDB extends HTMLElement {
     const left = this.hasAttribute("left");
     const right = this.hasAttribute("right");
 
-    const width = this.getAttribute("width");
-    const height = this.getAttribute("height");
+    const widthAttr = this.getAttribute("width");
+    const heightAttr = this.getAttribute("height");
 
     if (!db || !domain) {
       console.error("<count-db> requires db and domain attributes.");
       return;
     }
 
-    const res = await fetch(`https://${db}/?domain=${domain}`);
-    const text = await res.text();
-    const count = text.trim();
+    const digitWidth = widthAttr ? Number(widthAttr) : 16;
+    const digitHeight = heightAttr ? Number(heightAttr) : 24;
 
-    // Shadow DOM 内の wrapper
+    const key = `${db}|${domain}`;
+    let countPromise = CountDB.countCache.get(key);
+    if (!countPromise) {
+      const url = `https://${db}/?domain=${encodeURIComponent(domain)}`;
+      countPromise = fetch(url, { cache: "force-cache" })
+        .then((res) => res.text())
+        .then((t) => t.trim())
+        .catch((e) => {
+          console.error("<count-db> fetch error:", e);
+          return "0";
+        });
+      CountDB.countCache.set(key, countPromise);
+    }
+
+    const count = await countPromise;
+
+    // Shadow DOM 初期化
+    this.shadowRoot.innerHTML = "";
+
+    const frag = document.createDocumentFragment();
+
+    const style = document.createElement("style");
+    style.textContent = `
+      :host {
+        display: inline-flex;
+        align-items: center;
+      }
+      .wrapper {
+        display: inline-flex;
+        align-items: center;
+      }
+      .digit {
+        display: inline-block;
+        width: var(--digit-width);
+        height: var(--digit-height);
+        background-image: url("${imgPath}/digits.${imgType}");
+        background-repeat: no-repeat;
+        background-size: calc(10 * var(--digit-width)) var(--digit-height);
+      }
+      .decor {
+        display: inline-block;
+        width: var(--digit-width);
+        height: var(--digit-height);
+        object-fit: contain;
+      }
+    `;
+
     const wrapper = document.createElement("span");
-    wrapper.style.display = "inline-flex";
-    wrapper.style.alignItems = "center";
+    wrapper.className = "wrapper";
 
-    // 共通サイズ適用
-    const applySize = (img) => {
-      if (width) img.style.width = `${width}px`;
-      if (height) img.style.height = `${height}px`;
-    };
+    // CSS カスタムプロパティでサイズ共有
+    wrapper.style.setProperty("--digit-width", `${digitWidth}px`);
+    wrapper.style.setProperty("--digit-height", `${digitHeight}px`);
 
-    // 左装飾
+    // 左装飾（必要なら）
     if (left) {
       const l = document.createElement("img");
+      l.className = "decor";
       l.src = `${imgPath}/left.${imgType}`;
-      applySize(l);
+      l.decoding = "async";
+      l.loading = "lazy";
       wrapper.appendChild(l);
     }
 
-    // 数字
+    // 数字スプライト
     for (const c of count) {
-      const img = document.createElement("img");
-      img.src = `${imgPath}/${c}.${imgType}`;
-      applySize(img);
-      wrapper.appendChild(img);
+      if (!/^[0-9]$/.test(c)) continue;
+      const n = Number(c);
+      const span = document.createElement("span");
+      span.className = "digit";
+      span.style.backgroundPositionX = `${-n * digitWidth}px`;
+      wrapper.appendChild(span);
     }
 
-    // 右装飾
+    // 右装飾（必要なら）
     if (right) {
       const r = document.createElement("img");
+      r.className = "decor";
       r.src = `${imgPath}/right.${imgType}`;
-      applySize(r);
+      r.decoding = "async";
+      r.loading = "lazy";
       wrapper.appendChild(r);
     }
 
-    // Shadow DOM に追加
-    this.shadowRoot.appendChild(wrapper);
+    frag.appendChild(style);
+    frag.appendChild(wrapper);
+    this.shadowRoot.appendChild(frag);
   }
 }
 
