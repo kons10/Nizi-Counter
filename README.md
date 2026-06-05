@@ -19,6 +19,6 @@
 - `img=""`に画像のディレクトリを配置してください。相対リンク対応。
 - `img-type`に拡張子を正しく入力してください。
 - `left` `right`を追加することで尻尾と頭を追加。
-
+- `height` `width`の利用も可能
 
 ![](left.webp)![](1.webp)![](2.webp)![](3.webp)![](4.webp)![](5.webp)![](6.webp)![](7.webp)![](8.webp)![](9.webp)![](0.webp)![](right.webp)
