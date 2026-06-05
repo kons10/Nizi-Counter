@@ -1,11 +1,9 @@
-/**
- * @title Access Counter Custom components
- * @author 奏音
- * @license Apache
- * @version 1.0.0
- * @description Access Counter Custom components
- * @created 2026-06-05
+/*!
+ * Access Counter Custom components
+ * (c) 2026 zyn.f5.si
+ * Licensed under MIT
  */
+
 
 class CountDB extends HTMLElement {
   constructor() {
