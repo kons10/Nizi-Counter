@@ -2,6 +2,7 @@
  * Access Counter Custom components
  * (c) 2026 zyn.f5.si
  * Licensed under MIT
+ * github.com/kons10/Nizi-Counter
  */
 
 
