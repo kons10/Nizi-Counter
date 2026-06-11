@@ -1,5 +1,5 @@
 /*!
- * Access Counter Custom components v1.1
+ * Access Counter Custom components v1.2
  * (c) 2026 zyn.f5.si
  * Licensed under MIT
  * github.com/kons10/Nizi-Counter
@@ -66,14 +66,12 @@ class CountDB extends HTMLElement {
       .wrapper {
         display: inline-flex;
         align-items: center;
+        gap: 0;
       }
       .digit {
         display: inline-block;
         width: var(--digit-width);
         height: var(--digit-height);
-        background-image: url("${imgPath}/digits.${imgType}");
-        background-repeat: no-repeat;
-        background-size: calc(10 * var(--digit-width)) var(--digit-height);
       }
       .decor {
         display: inline-block;
@@ -100,14 +98,18 @@ class CountDB extends HTMLElement {
       wrapper.appendChild(l);
     }
 
-    // 数字スプライト
+    // 個別数字画像読込
     for (const c of count) {
       if (!/^[0-9]$/.test(c)) continue;
-      const n = Number(c);
-      const span = document.createElement("span");
-      span.className = "digit";
-      span.style.backgroundPositionX = `${-n * digitWidth}px`;
-      wrapper.appendChild(span);
+      const img = document.createElement("img");
+      img.className = "digit";
+      img.src = `${imgPath}/${c}.${imgType}`;
+      img.width = digitWidth;
+      img.height = digitHeight;
+      img.decoding = "async";
+      img.loading = "lazy";
+      img.alt = c;
+      wrapper.appendChild(img);
     }
 
     // 右装飾（必要なら）
