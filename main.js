@@ -77,7 +77,7 @@ class CountDB extends HTMLElement {
         display: inline-block;
         width: var(--digit-width);
         height: var(--digit-height);
-        object-fit: contain;
+        object-fit: fill;
       }
     `;
 
